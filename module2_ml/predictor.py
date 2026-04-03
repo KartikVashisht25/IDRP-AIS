@@ -2,7 +2,7 @@ import joblib
 import numpy as np
 from shared.data_contract import validate_feature_vector
 from module3_system.decision_engine import evaluate_risk
-from module3_system.database import initialize_databse, log_prediction
+from module3_system.database import initialize_database
 from datetime import datetime
 
 

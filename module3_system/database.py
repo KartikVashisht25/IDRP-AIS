@@ -1,13 +1,15 @@
 # Module3_system/Database.py
 import sqlite3
-
+import os
 from datetime import datetime
 
+
+os.makedirs("data", exist_ok=True)
 DB_PATH = "data/idrp_ais.db"
 
-def initialize_databse():
+def initialize_database():
     """
-    Create databse and table if not exists
+    Create database and table if not exists
     """
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -52,7 +54,7 @@ def log_prediction(feature_dict, prediction_result, decision_result):
             alert_level
         )VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """,(
-        feature_dict["timestamp"],
+        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         feature_dict["ear"],
         feature_dict["blink_rate"],
         feature_dict["eye_closure_duration"],
