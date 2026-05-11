@@ -1,6 +1,5 @@
-# Virtual environments
+# Virtual environment
 venv/
-venv310/
 
 # Python cache
 __pycache__/
@@ -10,6 +9,9 @@ __pycache__/
 
 # ML model files
 *.pkl
+*.h5
+model/
+module2_ml/model/
 
 # Database files
 *.db
