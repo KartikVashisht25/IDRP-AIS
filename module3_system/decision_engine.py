@@ -1,41 +1,17 @@
-# #MODULE3_SYSTEM/decision_engine.py
-
-# def evaluate_risk(prediction_result):
-#     """
-#     Takes prediction dictionary from ML module
-#     Returns decision level and action type
-#     """
-
-#     risk_class = prediction_result["risk_class"]
-#     probabilities = prediction_result["probabilities"]
-
-#     decision = {
-#         "alert_level": None,
-#         "action": None
-#     }
-
-#     #SAFE
-#     if risk_class == 0:
-#         decision["alert_level"] = "NONE"
-#         decision["action"] = "No Action Required."
-
-#     #MODERATE
-#     elif risk_class == 1:
-#         decision["alert_level"] = "WARNING"
-#         decision["action"] = "Play Soft Alert Sound."
-
-#     #HIGH
-#     elif risk_class == 2:
-#         decision["alert_level"] = "CRITICAL"
-#         decision["action"] = "Trigger Loud Alarm And Dashboard Alert."
-
-#     return decision            
 def evaluate_risk(prediction, features):
 
-    if features["eye_closure_duration"] > 1.5:
-        return {"alert_level": "HIGH RISK"}
+    if prediction > 0.7:
 
-    if features["blink_rate"] > 25:
-        return {"alert_level": "DROWSY"}
+        risk = "HIGH RISK"
 
-    return {"alert_level": prediction["risk_label"]}
+    elif prediction > 0.4:
+
+        risk = "MEDIUM RISK"
+
+    else:
+
+        risk = "SAFE"
+
+    return {
+        "alert_level": risk
+    }

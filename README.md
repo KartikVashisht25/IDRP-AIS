@@ -1,189 +1,244 @@
-# 🚗 Intelligent Driver Risk Prediction & Adaptive Intervention System (IDRP-AIS)
+<div align="center">
 
-## 📌 Overview
+<h1>🚗 IDRP-AIS</h1>
+<h3>Intelligent Driver Risk Prediction & Adaptive Intervention System</h3>
 
-The **Intelligent Driver Risk Prediction & Adaptive Intervention System (IDRP-AIS)** is an AI-powered real-time driver monitoring system designed to detect fatigue, drowsiness, and driver risk levels using Computer Vision and Machine Learning.
-
-The system continuously analyzes facial behavior such as eye closure, blink rate, and head movement to predict risk and trigger adaptive alerts for improved road safety.
-
----
-
-## 🎯 Key Features
-
-* 🎥 Real-time camera-based monitoring (OpenCV)
-* 👁️ Facial landmark detection using MediaPipe
-* 📊 Eye Aspect Ratio (EAR) for fatigue detection
-* 🔁 Blink rate & eye closure duration tracking
-* 🤖 Machine Learning-based risk prediction (Random Forest)
-* 🧠 Hybrid Decision Engine (ML + rule-based logic)
-* 🚨 Real-time alert system (sound + console alerts)
-* 🗄️ SQLite database logging
-* 📊 Live console dashboard
-* 🎯 On-screen UI overlay (live metrics display)
+<p><em>Real-time AI-powered driver monitoring that detects fatigue, distraction, and attention loss — before they cause accidents.</em></p>
+</div>
 
 ---
 
-## 🧠 System Architecture
+## Overview
 
-Driver → Camera → Feature Extraction → ML Prediction → Decision Engine → Alert System → Database
+Driver fatigue and distraction are among the leading causes of road accidents worldwide. **IDRP-AIS** addresses this by continuously analyzing a driver's facial behavior through a live camera feed, using computer vision and machine learning to detect dangerous states in real time — and intervening before a crisis occurs.
 
----
-
-## ⚙️ Technologies Used
-
-| Category         | Technology        |
-| ---------------- | ----------------- |
-| Language         | Python            |
-| Computer Vision  | OpenCV, MediaPipe |
-| Machine Learning | Scikit-learn      |
-| Data Handling    | NumPy, Pandas     |
-| Database         | SQLite            |
-| Version Control  | Git, GitHub       |
+The system doesn't just monitor. It **acts**: triggering adaptive alerts, sending Telegram emergency notifications, logging events for analytics, and rendering a live risk dashboard — all within milliseconds.
 
 ---
 
-## 📂 Project Structure
+## What It Detects
 
-IDRP(AIS)/
+| Behavior | Detection Method |
+|---|---|
+| 😴 Eye closure / drowsiness | Eye Aspect Ratio (EAR) |
+| 🥱 Yawning | Mouth Aspect Ratio (MAR) |
+| 👁️ Excessive blinking | Blink rate tracking |
+| 👀 Unsafe gaze direction | Gaze vector estimation |
+| 🧠 Head pose deviation | Pitch / Yaw / Roll estimation |
+| 🚨 Overall driver risk level | AI + rule-based decision engine |
+
+---
+
+## System Architecture
+
+```
+Camera Feed
+    │
+    ▼
+Face Landmark Detection  (MediaPipe)
+    │
+    ▼
+Feature Extraction  (EAR · MAR · Gaze · Head Pose · Blink Rate)
+    │
+    ▼
+AI Risk Prediction  (LSTM + Rule-Based Decision Engine)
+    │
+    ▼
+   ┌──────────────────────────────────────┐
+   │          Adaptive Intervention        │
+   ├─────────────┬────────────┬───────────┤
+   │  🔊 Alert   │ 📲 Telegram│ 📊 Dashboard│
+   │   Sound     │   Alert    │  Warning  │
+   └─────────────┴────────────┴───────────┘
+    │
+    ▼
+🗄️ Database Logging  (SQLite + CSV)
+```
+
+---
+
+## Core Features
+
+### 🎥 Real-Time Vision Pipeline
+Processes a live webcam stream frame-by-frame using MediaPipe's face mesh, extracting 468 facial landmarks per frame to power all downstream detections.
+
+### 👁️ Fatigue & Blink Detection
+Calculates the **Eye Aspect Ratio (EAR)** continuously. When eyes remain closed beyond a configurable threshold, or blink frequency spikes abnormally, the system flags fatigue.
+
+### 🥱 Yawn Detection
+The **Mouth Aspect Ratio (MAR)** tracks mouth openness over time. Repeated yawning — a key early indicator of driver fatigue — triggers escalating alert levels.
+
+### 👀 Gaze & Head Pose Tracking
+6-DoF head pose estimation (pitch, yaw, roll) combined with iris-based gaze tracking detects when a driver looks away from the road — left, right, up, or down — and for how long.
+
+### 🚨 Adaptive Alert System
+Alerts scale with risk level:
+- **Low risk** → passive dashboard indicator
+- **Medium risk** → audio alert
+- **High risk** → audio alert + Telegram emergency notification
+
+### 📊 Live Streamlit Dashboard
+A fully interactive dashboard displays all metrics in real time:
+EAR · MAR · Blink Rate · Gaze Direction · Head Direction · Pitch/Yaw/Roll · Risk Level · Session Statistics · Fatigue & Distraction Alerts
+
+### 🗄️ Event Logging & Analytics
+Every detected event is persisted to an SQLite database and exported as CSV — enabling post-session analysis, driver reports, and long-term trend monitoring.
+
+---
+
+## Project Structure
+
+```
+IDRP-AIS/
 │
-├── module1_vision/
+├── Assets/                    # Alert audio files
+│   ├── alert.mp3
+│   └── alert1.wav
+│
+├── data/
+│   └── idrp_ais.db            # SQLite event database
+│
+├── module1_vision/            # Computer vision pipeline
 │   ├── camera_stream.py
-│   ├── landmark_detector.py
 │   ├── ear_calculator.py
 │   ├── fatigue_detector.py
-│   └── feature_extractor.py
+│   ├── feature_extractor.py
+│   ├── gaze_tracker.py
+│   ├── head_pose_estimator.py
+│   ├── landmark_detector.py
+│   └── yawn_detector.py
 │
-├── module2_ml/
+├── module2_ml/                # Machine learning & prediction
+│   ├── lstm_data_preparation.py
+│   ├── lstm_model.py
+│   ├── lstm_predictor.py
 │   ├── predictor.py
-│   ├── train_module.py
-│   └── model/
+│   ├── train_lstm.py
+│   └── train_module.py
 │
-├── module3_system/
-│   ├── decision_engine.py
+├── module3_system/            # Alerts, dashboard, logging
 │   ├── alert_system.py
 │   ├── dashboard.py
-│   └── database.py
+│   ├── database.py
+│   ├── decision_engine.py
+│   ├── event_logger.py
+│   └── telegram_alert.py
 │
-├── shared/
-├── main.py
-├── requirements.txt
-└── README.md
+├── analytics_dashboard.py     # Historical analytics view
+├── live_dashboard.py          # Real-time Streamlit dashboard
+├── main.py                    # Core monitoring loop
+├── start_app.py               # Application entry point
+└── requirements.txt
+```
 
 ---
 
-## 🚀 How It Works
+## Technology Stack
 
-1. Captures live video using webcam
-2. Detects facial landmarks using MediaPipe
-3. Computes EAR (Eye Aspect Ratio)
-4. Tracks blink rate & eye closure duration
-5. Sends features to ML model
-6. Predicts driver risk level
-7. Applies decision logic
-8. Triggers alerts
-9. Logs data into database
-
----
-
-## 📊 Sample Output
-
-EAR: 0.23
-Blink Rate: 55.5
-Eye Closure Duration: 0.0
-Risk: SAFE
-Alert: NORMAL
+| Category | Tools |
+|---|---|
+| Language | Python 3.10 |
+| Computer Vision | OpenCV, MediaPipe |
+| Machine Learning | TensorFlow, Keras, Scikit-learn |
+| Dashboard | Streamlit, Plotly |
+| Data Handling | NumPy, Pandas |
+| Database | SQLite3 |
+| Alerts | Pygame, Telegram Bot API |
+| Version Control | Git, GitHub |
 
 ---
 
-## ⚠️ Current Limitations
+## Getting Started
 
-* No head pose detection yet
-* Model trained on mock/synthetic data
-* No web-based dashboard
-* Limited temporal modeling
+### Prerequisites
+- Python 3.10
+- Webcam
+- (Optional) Telegram Bot token for emergency alerts
 
----
+### Installation
 
-## 🔥 Future Enhancements
-
-### 🧠 AI Improvements
-
-* LSTM-based fatigue detection
-* Real dataset training
-* Personalized driver behavior
-
-### 👁️ Vision Upgrades
-
-* Head pose estimation
-* Eye gaze tracking
-* Yawning detection
-
-### 🎯 UI Upgrades
-
-* Streamlit dashboard
-* Real-time graphs
-* Mobile app integration
-
-### 🚗 IoT Integration
-
-* GPS-based alerts
-* Cloud storage (Firebase/AWS)
-* Vehicle integration
-
----
-
-## 🧪 Installation & Setup
-
-### 1. Clone Repository
-
+```bash
+# 1. Clone the repository
 git clone https://github.com/KartikVashisht25/IDRP-AIS.git
 cd IDRP-AIS
 
----
-
-### 2. Create Virtual Environment
-
+# 2. Create and activate a virtual environment
 python -m venv venv310
-venv310\Scripts\activate
+venv310\Scripts\activate        # Windows
+# source venv310/bin/activate   # macOS / Linux
 
----
-
-### 3. Install Dependencies
-
+# 3. Install dependencies
 pip install -r requirements.txt
 
----
+# 4. Launch the live dashboard
+streamlit run live_dashboard.py
+```
 
-### 4. Run Project
-
-python main.py
-
----
-
-## 🧠 Project Highlights
-
-* Real-time AI system
-* Modular architecture
-* Hybrid intelligence (ML + rules)
-* End-to-end pipeline
-* Industry-relevant use case
+> To configure Telegram alerts, add your bot token and chat ID to the relevant config section in `module3_system/telegram_alert.py`.
 
 ---
 
-## 👨‍💻 Author
+## Alert Trigger Conditions
 
-Kartik Vashisht
-BCA Student | AI Developer
+The decision engine fires alerts when any of the following thresholds are exceeded:
 
----
+- Eyes closed continuously beyond the configured duration
+- Yawn frequency surpasses the fatigue progression threshold
+- Gaze directed away from road for more than the distraction window
+- Head pose deviation (left/right/up/down) sustained beyond safe limits
+- Composite risk score crosses the HIGH RISK boundary
 
-## 📌 Note
-
-This project is developed as both:
-
-* Academic Major Project
-* Resume & Portfolio Project
+All thresholds are configurable to adapt to different drivers and environments.
 
 ---
 
-## ⭐ If you like this project, give it a star!
+## Risk Level Classification
+
+| Level | Condition | Response |
+|---|---|---|
+| ✅ SAFE | All metrics within normal range | Dashboard monitoring only |
+| ⚠️ MEDIUM RISK | One or more metrics approaching threshold | Audio alert triggered |
+| 🚨 HIGH RISK | Multiple metrics in danger zone | Audio + Telegram alert |
+
+---
+
+## Roadmap
+
+- [ ] Driver identity recognition (per-driver baseline calibration)
+- [ ] Voice-based alert system
+- [ ] Cloud dashboard & fleet monitoring integration
+- [ ] Mobile companion app
+- [ ] Automated PDF session reports
+- [ ] Full LSTM training pipeline with labeled dataset
+- [ ] Advanced post-session analytics dashboard
+
+---
+
+## Why IDRP-AIS?
+
+Most driver monitoring systems on the market are either expensive hardware integrations or simple single-metric detectors. IDRP-AIS is a **multi-signal, AI-driven system** that:
+
+- Combines **6+ behavioral signals** into a unified risk score
+- Operates entirely on a **standard webcam** — no specialized hardware needed
+- Provides **adaptive intervention** that escalates with risk, rather than binary on/off alerts
+- Maintains a **full audit trail** for post-incident analysis
+
+---
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you'd like to change.
+
+---
+
+## Developed By
+
+**Kartik Vashisht**  
+AI Developer · Computer Vision · ML Systems  
+[GitHub](https://github.com/KartikVashisht25)
+
+---
+
+<div align="center">
+  <p>If IDRP-AIS is useful to you, consider giving it a ⭐ on GitHub — it helps others find the project.</p>
+</div>

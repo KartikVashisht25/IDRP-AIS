@@ -1,57 +1,76 @@
-from playsound import playsound
-import os
+import pygame
+import threading
+import time
 
-# Toggle system anytime
-USE_CUSTOM_SOUND = True   # 👈 TURN OFF faaaah sound
+from module3_system.telegram_alert import (
+    send_telegram_alert
+)
 
-# Absolute path (IMPORTANT)
-CUSTOM_SOUND_PATH = r"C:\Users\kvash\OneDrive\Desktop\IDRP(AIS)\Assets\alert.wav"
+pygame.mixer.init()
 
+ALERT_SOUND = "Assets/alert.mp3"
 
-def trigger_alert(decision):
-    level = decision.get("alert_level", "")
+last_telegram_alert = 0
+telegram_cooldown = 15
 
-    print("🚨 ALERT TRIGGERED:", level)
-
-    if level == "HIGH RISK":
-        try:
-            if USE_CUSTOM_SOUND:
-                playsound(CUSTOM_SOUND_PATH)
-            else:
-                print("🔊 Fallback beep (no custom sound)")
-        except Exception as e:
-            print("❌ SOUND ERROR:", e)
+sound_playing = False
 
 
+def play_alert():
+
+    global sound_playing
+
+    try:
+
+        if not pygame.mixer.music.get_busy():
+
+            pygame.mixer.music.load(ALERT_SOUND)
+
+            pygame.mixer.music.play(-1)
+
+            sound_playing = True
+
+    except Exception as e:
+
+        print("Alert Sound Error:", e)
 
 
+def stop_alert():
+
+    global sound_playing
+
+    pygame.mixer.music.stop()
+
+    sound_playing = False
 
 
+def trigger_sound_alert():
+
+    global sound_playing
+
+    if not sound_playing:
+
+        threading.Thread(
+            target=play_alert,
+            daemon=True
+        ).start()
 
 
-# import os
+def trigger_telegram_alert(message):
 
-# # 🔄 Toggle system
-# USE_CUSTOM_SOUND = True   # 👈 TURN OFF faaaah sound
+    global last_telegram_alert
 
-# CUSTOM_SOUND_PATH = r"C:\Users\kvash\OneDrive\Desktop\IDRP(AIS)\Assets\alert.wav"
+    current_time = time.time()
+
+    if current_time - last_telegram_alert > telegram_cooldown:
+
+        send_telegram_alert(message)
+
+        last_telegram_alert = current_time
 
 
-# def trigger_alert(decision):
-#     level = decision.get("alert_level", "")
+def trigger_alert(message="HIGH RISK ALERT"):
 
-#     print("🚨 ALERT:", level)
+    trigger_sound_alert()
 
-#     if level == "HIGH RISK":
-
-#         try:
-#             if USE_CUSTOM_SOUND:
-#                 from playsound import playsound
-#                 playsound(CUSTOM_SOUND_PATH)
-#             else:
-#                 # ✅ Default Windows beep
-#                 import winsound
-#                 winsound.MessageBeep()
-                
-#         except Exception as e:
-#             print("❌ SOUND ERROR:", e)
+    trigger_telegram_alert(message)

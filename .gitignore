@@ -1,11 +1,17 @@
-# Virtual environment
+# Virtual environments
 venv/
+venv310/
 
 # Python cache
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+
+# Build / executable files
+build/
+dist/
+*.spec
 
 # ML model files
 *.pkl
@@ -17,6 +23,9 @@ module2_ml/model/
 *.db
 *.sqlite3
 
+# Logs
+*.log
+
 # OS files
 .DS_Store
 Thumbs.db
@@ -24,5 +33,11 @@ Thumbs.db
 # VS Code settings
 .vscode/
 
-# Environment variables
+# Environment variables / secrets
 .env
+
+# Streamlit cache
+.streamlit/
+
+# Jupyter notebooks
+.ipynb_checkpoints/

@@ -1,83 +1,85 @@
-# Module3_system/Database.py
 import sqlite3
-import os
-from datetime import datetime
 
 
-os.makedirs("data", exist_ok=True)
-DB_PATH = "data/idrp_ais.db"
+DB_NAME = "data/idrp_ais.db"
+
 
 def initialize_database():
-    """
-    Create database and table if not exists
-    """
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
+
+    connection = sqlite3.connect(DB_NAME)
+
+    cursor = connection.cursor()
 
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS driver_logs(
+        CREATE TABLE IF NOT EXISTS driver_events (
+
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+
             timestamp TEXT,
+
+            risk TEXT,
+
             ear REAL,
-            blink_rate INTEGER,
-            eye_closure_duration REAL,
-            head_pitch REAL,
-            head_yaw REAL,
-            head_roll REAL,
-            risk_class INTEGER,
-            risk_label TEXT,
-            alert_level TEXT
+
+            blink_rate REAL,
+
+            yawning INTEGER,
+
+            head_direction TEXT,
+
+            gaze_direction TEXT,
+
+            distraction_duration REAL
         )
     """)
-    
-    conn.commit()
-    conn.close()
 
-def log_prediction(feature_dict, prediction_result, decision_result):
-    """
-    Insert new log entry into database
-    """
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
+    connection.commit()
+
+    connection.close()
+
+
+def insert_event(
+    timestamp,
+    risk,
+    ear,
+    blink_rate,
+    yawning,
+    head_direction,
+    gaze_direction,
+    distraction_duration
+):
+
+    connection = sqlite3.connect(DB_NAME)
+
+    cursor = connection.cursor()
 
     cursor.execute("""
-        INSERT INTO  driver_logs(
+        INSERT INTO driver_events (
+
             timestamp,
+            risk,
             ear,
             blink_rate,
-            eye_closure_duration,
-            head_pitch,
-            head_yaw,
-            head_roll,
-            risk_class,
-            risk_label,
-            alert_level
-        )VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """,(
-        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        feature_dict["ear"],
-        feature_dict["blink_rate"],
-        feature_dict["eye_closure_duration"],
-        feature_dict["head_pitch"],
-        feature_dict["head_yaw"],
-        feature_dict["head_roll"],
-        prediction_result["risk_class"],
-        prediction_result["risk_label"],
-        decision_result["alert_level"],
+            yawning,
+            head_direction,
+            gaze_direction,
+            distraction_duration
+
+        )
+
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+
+        timestamp,
+        risk,
+        ear,
+        blink_rate,
+        yawning,
+        head_direction,
+        gaze_direction,
+        distraction_duration
     ))
 
-    conn.commit()
-    conn.close()
+    connection.commit()
 
-def fetch_all_logs():
-    """
-    Retrieve all logs
-    """
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM driver_logs")
-    rows = cursor.fetchall()
-
-    conn.close()
-    return rows    
+    connection.close()
